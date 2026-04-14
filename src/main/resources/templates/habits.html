@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+</head>
+<body>
+    <h1>習慣一覧</h1>
+<ul>
+    <li th:each="task, status : ${habits}">
+        <span th:text="${task}"></span>
+        <a th:href="@{/habits/delete(index=${status.index})}">削除</a>
+        <a th:href="@{/habits/edit(index=${status.index})}">編集</a>
+    </li>
+</ul>
+</body>
+
+</html>
