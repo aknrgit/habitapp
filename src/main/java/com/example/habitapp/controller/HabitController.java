@@ -2,18 +2,24 @@ package com.example.habitapp.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.example.habitapp.entity.Habit;
+import com.example.habitapp.repository.Habitrepository;
 
 
 
 
 @Controller
 public class HabitController {
-    private List<String> habits = new ArrayList<>();
+   /*  private List<String> habits = new ArrayList<>();
 
     @RequestMapping(path = "/habits")
     public String habits(Model model) {
@@ -49,5 +55,25 @@ public class HabitController {
         public String update(int index, String task) {
         habits.set(index, task);
         return "redirect:/habits";
+    } */
+    @Autowired
+    Habitrepository habitrepository;
+
+
+    //習慣全件表示
+    @GetMapping("/habits")
+    public String showHabitList(Model model) {
+        model.addAttribute("habits", habitrepository.findAll());
+        return "habits";
     }
+
+    //習慣化セーブ
+    @PostMapping("/habits")
+    public String addHabit(@RequestParam String title,@RequestParam String description) {
+        Habit habit = new Habit(title, description);
+        habitrepository.save(habit);
+        return "redirect:/habits";
+    }
+
+    
 }
