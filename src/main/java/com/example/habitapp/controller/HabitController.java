@@ -74,6 +74,31 @@ public class HabitController {
         habitrepository.save(habit);
         return "redirect:/habits";
     }
+    //削除
+    @GetMapping("/habits/delete")
+    public String deleteHabit(@RequestParam Long id) {
+        habitrepository.deleteById(id);
+        return "redirect:/habits";
+    }
+    //編集
+    @GetMapping("/habits/edit")
+    public String editHabit(@RequestParam Long id, Model model) {
+        Habit habit = habitrepository.findById(id).orElse(null);
+        model.addAttribute("habit", habit);
+        return "habit-edit";
+    }
 
-    
+    @PostMapping("/habits/update")
+    public String updateHabit(@RequestParam Long id,@RequestParam String title,@RequestParam String description) {
+        // ① 既存データを取得
+        Habit habit = habitrepository.findById(id).orElse(null);
+
+        // ② 値を変更
+        habit.setTitle(title);
+        habit.setDescription(description);
+
+        // ③ 保存（更新）
+        habitrepository.save(habit);
+        return "redirect:/habits";
+    }
 }
