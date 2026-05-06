@@ -8,6 +8,7 @@ import com.example.habitapp.entity.HabitRecord;
 
 public interface HabitRecordRepository extends JpaRepository<HabitRecord, Long> {
     boolean existsByHabitIdAndAchievedDate(Long habitId, LocalDate achievedDate);
+    int countByHabitIdAndAchievedDateBetween(Long habitId,LocalDate start,LocalDate end);
 
 }
 

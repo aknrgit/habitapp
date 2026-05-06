@@ -129,6 +129,11 @@ public class HabitController {
     public String showHabitListToday(Model model) {
         List<Habit> habits = habitrepository.findAll();
         Set<Long> completedHabitIds = new HashSet<>();
+         //達成率表示
+        Map<Long, Integer> achievementRates = new HashMap<>();
+        LocalDate now = LocalDate.now();
+        LocalDate start = now.withDayOfMonth(1);
+        LocalDate end = now.withDayOfMonth(now.lengthOfMonth());
 
     for (Habit habit : habits) {
         boolean done =
@@ -140,11 +145,15 @@ public class HabitController {
         if (done) {
             completedHabitIds.add(habit.getId());
         }
+        int count = habitRecordRepository.countByHabitIdAndAchievedDateBetween(habit.getId(),start,end);
+        int rate =count * 100 / now.lengthOfMonth();
+        achievementRates.put(habit.getId(),rate);
     }
         model.addAttribute("habits", habits);
         model.addAttribute("completedHabitIds", completedHabitIds);
+        model.addAttribute("achievementRates",achievementRates);
         return "today";
-    }
+        }
 
     @Autowired
     HabitRecordRepository habitRecordRepository;
