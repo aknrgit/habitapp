@@ -2,8 +2,10 @@ package com.example.habitapp.controller;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.habitapp.entity.Habit;
+import com.example.habitapp.entity.HabitRecord;
+import com.example.habitapp.repository.HabitRecordRepository;
 import com.example.habitapp.repository.Habitrepository;
 import com.example.habitapp.dto.CharacterData;
 
@@ -120,5 +124,38 @@ public class HabitController {
         // ③ 保存（更新）
         habitrepository.save(habit);
         return "redirect:/habits";
+    }
+    @GetMapping("/today")
+    public String showHabitListToday(Model model) {
+        List<Habit> habits = habitrepository.findAll();
+        Set<Long> completedHabitIds = new HashSet<>();
+
+    for (Habit habit : habits) {
+        boolean done =
+            habitRecordRepository.existsByHabitIdAndAchievedDate(
+                habit.getId(),
+                LocalDate.now()
+            );
+
+        if (done) {
+            completedHabitIds.add(habit.getId());
+        }
+    }
+        model.addAttribute("habits", habits);
+        model.addAttribute("completedHabitIds", completedHabitIds);
+        return "today";
+    }
+
+    @Autowired
+    HabitRecordRepository habitRecordRepository;
+    @PostMapping("/habits/complete")
+    public String completeHabit(@RequestParam Long habitId) {
+        boolean alreadyDone = habitRecordRepository.existsByHabitIdAndAchievedDate(habitId,LocalDate.now());
+        if (!alreadyDone) {
+            HabitRecord record = new HabitRecord(habitId,LocalDate.now());
+            habitRecordRepository.save(record);
+        }
+        
+        return "redirect:/today";
     }
 }
