@@ -31,10 +31,35 @@
 
         </div>
     </div>
+    <canvas id="myChart"></canvas>
 
 </main>
 
 <div th:replace="fragments :: footer"></div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js">
+</script>
+<script th:inline="javascript">
 
+const ctx =document.getElementById('myChart');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['達成率'],
+        datasets: [{
+            label: '今月の達成率',
+            data: [ [[${achievementRate}]] ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+</script>
 </body>
 </html>
