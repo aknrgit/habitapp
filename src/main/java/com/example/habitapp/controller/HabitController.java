@@ -3,6 +3,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,8 +19,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.habitapp.entity.DailyComment;
 import com.example.habitapp.entity.Habit;
 import com.example.habitapp.entity.HabitRecord;
+import com.example.habitapp.repository.DailyCommentRepository;
 import com.example.habitapp.repository.HabitRecordRepository;
 import com.example.habitapp.repository.Habitrepository;
 import com.example.habitapp.dto.CharacterData;
@@ -171,15 +174,85 @@ public class HabitController {
     @GetMapping("/habits/{id}")
     public String showHabitDetail(@PathVariable Long id, Model model) {
         Habit habit = habitrepository.findById(id).orElse(null);
-        LocalDate now = LocalDate.now();
-        LocalDate start = now.withDayOfMonth(1);
-        LocalDate end = now.withDayOfMonth(now.lengthOfMonth());
-        int count = habitRecordRepository.countByHabitIdAndAchievedDateBetween(id,start,end);
-        int achievementRate = count * 100 / now.lengthOfMonth();
-        System.out.println(count);
-        System.out.println(achievementRate);
+
+        List<Integer> monthlyRates = new ArrayList<>();
+        List<String> monthLabels = new ArrayList<>();
+        int year = LocalDate.now().getYear();
+
+        // 1月〜12月
+        for (int month = 1; month <= 12; month++) {
+            LocalDate monthStart = LocalDate.of(year, month, 1);
+            LocalDate monthEnd = monthStart.withDayOfMonth(monthStart.lengthOfMonth());
+            int count = habitRecordRepository.countByHabitIdAndAchievedDateBetween(
+                    id,
+                    monthStart,
+                    monthEnd
+                );
+
+            int rate = count * 100 / monthStart.lengthOfMonth();
+            monthlyRates.add(rate);
+            monthLabels.add(month + "月");
+        }
+
         model.addAttribute("habit", habit);
-        model.addAttribute("achievementRate", achievementRate);
+        model.addAttribute("monthlyRates", monthlyRates);
+        model.addAttribute("monthLabels", monthLabels);
+
         return "habit-detail";
     }
+
+    @GetMapping("/achievements/today")
+    public String showTodayAchievements(Model model) {
+        List<HabitRecord> records = habitRecordRepository.findByAchievedDate(LocalDate.now());
+        model.addAttribute("records", records);
+        return "today-achievements";
+    }
+    @Autowired
+    DailyCommentRepository dailyCommentRepository;
+    @PostMapping("/daily-comment")
+    public String saveDailyComment(@RequestParam String comment) {
+        DailyComment dailyComment = new DailyComment(comment,LocalDate.now());
+        dailyCommentRepository.save(dailyComment);
+        return "redirect:/achievements/today";
+    }
+
+    @GetMapping("/achievements")
+    public String showAchievements(Model model) {
+        List<HabitRecord> records = habitRecordRepository.findAllByOrderByAchievedDateDesc();
+        System.out.println("records = " + records.size());
+        List<DailyComment> comments = dailyCommentRepository.findAllByOrderByCreatedDateDesc();
+        // 日付ごとの習慣一覧を保存するMap
+        Map<LocalDate, List<String>> achievementMap = new LinkedHashMap<>();
+        // 日付ごとの感想を保存するMap
+        Map<LocalDate, String> commentMap = new LinkedHashMap<>();
+
+         // 達成記録を1件ずつ取り出す
+        for (HabitRecord record : records) {
+            // 達成日を取得
+            LocalDate date = record.getAchievedDate();
+            // その日付のListが無ければ新しく作る
+            // その後、習慣タイトルを追加
+            achievementMap
+                .computeIfAbsent(
+                    date,
+                    d -> new ArrayList<>()
+                )
+                .add(
+                    record.getHabit().getTitle()
+                );
+        }
+        // 感想を1件ずつ取り出す
+        for (DailyComment comment : comments) {
+            // 感想の日付を取得
+            LocalDate date = comment.getCreatedDate();
+            // 日付と感想をMapへ保存
+            commentMap.put(date,comment.getComment());
+        }
+        System.out.println("achievementMap = " + achievementMap);
+        model.addAttribute("achievementMap",achievementMap);
+        model.addAttribute("commentMap",commentMap);
+        return "achievements";
+    }
+
+
 }

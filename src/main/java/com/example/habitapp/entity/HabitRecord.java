@@ -4,6 +4,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class HabitRecord {
@@ -33,5 +35,17 @@ public class HabitRecord {
 
     public LocalDate getAchievedDate() {
         return achievedDate;
+    }
+
+    @ManyToOne
+    @JoinColumn(
+        name = "habitId",
+        insertable = false,
+        updatable = false
+    )
+    private Habit habit;
+
+    public Habit getHabit() {
+    return habit;
     }
 }

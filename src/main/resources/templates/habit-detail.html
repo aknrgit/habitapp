@@ -16,17 +16,7 @@
         <div class="card-body p-4">
 
             <h1 class="fw-bold mb-3" th:text="${habit.title}"></h1>
-
             <p class="text-muted" th:text="${habit.description}"></p>
-
-            <h5 class="mt-4">今月の達成率</h5>
-            <p class="fw-bold">
-                <span th:text="${achievementRate}"></span>%
-            </p>
-            
-
-            
-
             <a href="/today" class="btn btn-secondary mt-3">戻る</a>
 
         </div>
@@ -40,14 +30,14 @@
 </script>
 <script th:inline="javascript">
 
-const ctx =document.getElementById('myChart');
+const ctx = document.getElementById('myChart');
 new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ['達成率'],
+        labels: [[${monthLabels}]],
         datasets: [{
-            label: '今月の達成率',
-            data: [ [[${achievementRate}]] ],
+            label: '月別達成率',
+            data: [[${monthlyRates}]],
             borderWidth: 1
         }]
     },

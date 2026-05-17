@@ -1,22 +1,87 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<body>
 
-<!-- ヘッダー -->
-<div th:fragment="header">
-    <nav class="navbar navbar-dark bg-dark">
+<!-- Header Fragment -->
+<header th:fragment="header">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+
         <div class="container">
-            <span class="navbar-brand">Habit App</span>
+
+            <!-- ロゴ -->
+            <a class="navbar-brand fw-bold"
+               href="/today">
+
+                Habit App
+
+            </a>
+
+            <!-- ハンバーガーボタン -->
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav">
+
+                <span class="navbar-toggler-icon"></span>
+
+            </button>
+
+            <!-- メニュー -->
+            <div class="collapse navbar-collapse"
+                 id="navbarNav">
+
+                <div class="navbar-nav ms-auto">
+
+                    <!-- 今日の習慣 -->
+                    <a class="nav-link"
+                       href="/today">
+
+                        今日の習慣
+
+                    </a>
+
+                     <!-- 今日の達成記録 -->
+                    <a class="nav-link"
+                       href="/achievements/today">
+
+                        今日の達成記録
+
+                    </a>
+
+
+                    <!-- 達成記録 -->
+                    <a class="nav-link"
+                       href="/achievements">
+
+                        全ての達成記録
+
+                    </a>
+
+
+                    <!-- 習慣設定 -->
+                    <a class="nav-link"
+                       href="/habits">
+
+                        習慣設定
+
+                    </a>
+
+                </div>
+
+            </div>
+
         </div>
+
     </nav>
-</div>
 
-<!-- フッター -->
-<div th:fragment="footer">
-    <footer class="bg-light text-center mt-5 p-3">
-        <p>© 2026 Habit App</p>
-    </footer>
-</div>
+</header>
 
-</body>
+<!-- Footer Fragment -->
+<footer th:fragment="footer"
+        class="text-center py-4 mt-5 text-muted">
+
+    © 2026 Habit App
+
+</footer>
+
 </html>
