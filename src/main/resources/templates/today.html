@@ -57,8 +57,25 @@
             </div>
         </div>
     </div>
+    <!-- 👇 応援キャラ（下に配置） -->
+    <div class="card shadow-sm border-0 text-center mt-4">
+        <div class="card-body p-4">
+
+            <h5 class="fw-bold mb-3">今日の応援キャラ</h5>
+
+            <img th:src="${characterImage}"
+                 alt="キャラクター"
+                 class="img-fluid mb-3"
+                 style="max-width: 180px;">
+
+            <p class="fw-bold mb-0" th:text="${message}"></p>
+
+        </div>
+    </div>
+
 
 </main>
+
 
 <div th:replace="fragments :: footer"></div>
 

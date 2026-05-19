@@ -1,5 +1,6 @@
 package com.example.habitapp.controller;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,9 +21,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.habitapp.entity.DailyComment;
+import com.example.habitapp.entity.DailySchedule;
 import com.example.habitapp.entity.Habit;
 import com.example.habitapp.entity.HabitRecord;
 import com.example.habitapp.repository.DailyCommentRepository;
+import com.example.habitapp.repository.DailyScheduleRepository;
 import com.example.habitapp.repository.HabitRecordRepository;
 import com.example.habitapp.repository.Habitrepository;
 import com.example.habitapp.dto.CharacterData;
@@ -40,58 +43,6 @@ public class HabitController {
     @GetMapping("/habits")
     public String showHabitList(Model model) {
         model.addAttribute("habits", habitrepository.findAll());
-        int day = LocalDate.now().getDayOfMonth();
-        
-        String[] messages = {
-            "新しい月のスタート！一歩踏み出そう！",
-            "昨日の自分より少し前へ！",
-            "いい流れ来てる！",
-            "小さな積み重ねが未来を変える",
-            "焦らずコツコツいこう",
-            "今日もやった自分えらい",
-            "続けてるだけで強い",
-            "習慣は裏切らない",
-            "ほんの少しでもOK",
-            "できた自分をちゃんと認めよう",
-
-            "継続が力になる",
-            "今日の1回が明日を変える",
-            "無理しないで続けよう",
-            "淡々と、それが最強",
-            "やる気なくても1分だけやってみよう",
-            "昨日より0.1成長",
-            "今日もナイスチャレンジ！",
-            "完璧じゃなくていい",
-            "やめなければ負けじゃない",
-            "今日も積み上げ成功",
-
-            "少しずつでも前進",
-            "未来の自分が喜んでる",
-            "今やってることはちゃんと意味がある",
-            "習慣が人生を作る",
-            "ここまで続けてるのすごい",
-            "今日も一歩クリア！",
-            "いい感じ、その調子",
-            "止まらなければOK",
-            "続けてる自分を誇れ",
-            "今日もよくやった！"
-        };
-        Map<Integer, CharacterData> characterMap = new HashMap<>();
-
-        for (int i = 1; i <= messages.length; i++) {
-            characterMap.put(i,
-                new CharacterData(
-                    "/image/" + i + ".png",
-                    messages[i - 1]
-                )
-            );
-        }
-        CharacterData today = characterMap.get(day);
-        if (today == null) {
-            today = new CharacterData("/images/1.png", "今日もコツコツ！");
-        }
-        model.addAttribute("characterImage", today.getImage());
-        model.addAttribute("message", today.getMessage());
         return "habits";
     }
 
@@ -153,6 +104,61 @@ public class HabitController {
         int rate =count * 100 / now.lengthOfMonth();
         achievementRates.put(habit.getId(),rate);
     }
+        //応援画像挿入
+        int day = LocalDate.now().getDayOfMonth();
+        String[] messages = {
+            "新しい月のスタート！一歩踏み出そう！",
+            "昨日の自分より少し前へ！",
+            "いい流れ来てる！",
+            "小さな積み重ねが未来を変える",
+            "焦らずコツコツいこう",
+            "今日もやった自分えらい",
+            "続けてるだけで強い",
+            "習慣は裏切らない",
+            "ほんの少しでもOK",
+            "できた自分をちゃんと認めよう",
+
+            "継続が力になる",
+            "今日の1回が明日を変える",
+            "無理しないで続けよう",
+            "淡々と、それが最強",
+            "やる気なくても1分だけやってみよう",
+            "昨日より0.1成長",
+            "今日もナイスチャレンジ！",
+            "完璧じゃなくていい",
+            "やめなければ負けじゃない",
+            "今日も積み上げ成功",
+
+            "少しずつでも前進",
+            "未来の自分が喜んでる",
+            "今やってることはちゃんと意味がある",
+            "習慣が人生を作る",
+            "ここまで続けてるのすごい",
+            "今日も一歩クリア！",
+            "いい感じ、その調子",
+            "止まらなければOK",
+            "続けてる自分を誇れ",
+            "今日もよくやった！"
+        };
+        Map<Integer, CharacterData> characterMap = new HashMap<>();
+
+        for (int i = 1; i <= messages.length; i++) {
+            characterMap.put(i,
+                new CharacterData(
+                    "/image/" + i + ".png",
+                    messages[i - 1]
+                )
+            );
+        }
+        CharacterData today = characterMap.get(day);
+        if (today == null) {
+            today = new CharacterData("/images/1.png", "今日もコツコツ！");
+        }
+        System.out.println(today.getImage());
+        model.addAttribute("characterImage", today.getImage());
+        model.addAttribute("message", today.getMessage());
+
+
         model.addAttribute("habits", habits);
         model.addAttribute("completedHabitIds", completedHabitIds);
         model.addAttribute("achievementRates",achievementRates);
@@ -252,6 +258,26 @@ public class HabitController {
         model.addAttribute("achievementMap",achievementMap);
         model.addAttribute("commentMap",commentMap);
         return "achievements";
+    }
+    //１日のスケージュール組み立て
+    @Autowired
+    DailyScheduleRepository dailyScheduleRepository;
+    @GetMapping("/daily-schedule")
+    public String showDailySchedule(Model model) {
+        List<Integer> hours = new ArrayList<>();
+        for (int i = 5; i <= 22; i++) {
+            hours.add(i);
+        }
+        model.addAttribute("hours", hours);
+        model.addAttribute("schedules",dailyScheduleRepository.findAll());
+        return "daily-schedule";
+    }
+
+    @PostMapping("/daily-schedule")
+    public String addDailySchedule(@RequestParam String scheduleTime,@RequestParam String content,@RequestParam String scheduleType) {
+        DailySchedule schedule = new DailySchedule(LocalTime.parse(scheduleTime),content,scheduleType);
+        dailyScheduleRepository.save(schedule);
+        return "redirect:/daily-schedule";
     }
 
 
