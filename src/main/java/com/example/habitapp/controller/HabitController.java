@@ -1,5 +1,6 @@
 package com.example.habitapp.controller;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,10 +25,12 @@ import com.example.habitapp.entity.DailyComment;
 import com.example.habitapp.entity.DailySchedule;
 import com.example.habitapp.entity.Habit;
 import com.example.habitapp.entity.HabitRecord;
+import com.example.habitapp.entity.SupportComment;
 import com.example.habitapp.repository.DailyCommentRepository;
 import com.example.habitapp.repository.DailyScheduleRepository;
 import com.example.habitapp.repository.HabitRecordRepository;
 import com.example.habitapp.repository.Habitrepository;
+import com.example.habitapp.repository.SupportCommentRepository;
 import com.example.habitapp.dto.CharacterData;
 
 
@@ -211,6 +214,9 @@ public class HabitController {
     public String showTodayAchievements(Model model) {
         List<HabitRecord> records = habitRecordRepository.findByAchievedDate(LocalDate.now());
         model.addAttribute("records", records);
+
+        List<SupportComment> supportComments = supportCommentRepository.findAllByOrderByCreatedAtDesc();
+        model.addAttribute("supportComments", supportComments);
         return "today-achievements";
     }
     @Autowired
@@ -262,14 +268,69 @@ public class HabitController {
     //１日のスケージュール組み立て
     @Autowired
     DailyScheduleRepository dailyScheduleRepository;
-    @GetMapping("/daily-schedule")
+   @GetMapping("/daily-schedule")
     public String showDailySchedule(Model model) {
         List<Integer> hours = new ArrayList<>();
+
         for (int i = 5; i <= 22; i++) {
             hours.add(i);
         }
+
+        List<DailySchedule> schedules =
+            dailyScheduleRepository.findAll();
+
+        // 平日
+        Map<String, String> weekdayMap =
+            new HashMap<>();
+
+        // 休日
+        Map<String, String> holidayMap =
+            new HashMap<>();
+
+        for (DailySchedule schedule : schedules) {
+
+            if (schedule.getScheduleTime() != null) {
+
+                String hour =
+                    String.valueOf(
+                        schedule.getScheduleTime().getHour()
+                    );
+
+                // 平日
+                if ("WEEKDAY".equals(schedule.getScheduleType())) {
+
+                    weekdayMap.put(
+                        hour,
+                        schedule.getContent()
+                    );
+                }
+
+                // 休日
+                if ("HOLIDAY".equals(schedule.getScheduleType())) {
+
+                    holidayMap.put(
+                        hour,
+                        schedule.getContent()
+                    );
+                }
+            }
+        }
+
+        System.out.println("weekdayMap = " + weekdayMap);
+        System.out.println("holidayMap = " + holidayMap);
+
         model.addAttribute("hours", hours);
-        model.addAttribute("schedules",dailyScheduleRepository.findAll());
+
+        model.addAttribute(
+            "weekdayMap",
+            weekdayMap
+        );
+
+        model.addAttribute(
+            "holidayMap",
+            holidayMap
+        );
+
         return "daily-schedule";
     }
 
@@ -278,6 +339,25 @@ public class HabitController {
         DailySchedule schedule = new DailySchedule(LocalTime.parse(scheduleTime),content,scheduleType);
         dailyScheduleRepository.save(schedule);
         return "redirect:/daily-schedule";
+    }
+
+    @Autowired
+    SupportCommentRepository supportCommentRepository;
+    @PostMapping("/support-comment")
+    public String saveSupportComment(
+            @RequestParam String supporterName,
+            @RequestParam String message) {
+
+        SupportComment comment =
+            new SupportComment(
+                supporterName,
+                message,
+                LocalDateTime.now()
+            );
+
+        supportCommentRepository.save(comment);
+
+        return "redirect:/achievements/today";
     }
 
 

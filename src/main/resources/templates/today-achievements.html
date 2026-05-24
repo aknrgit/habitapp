@@ -76,6 +76,48 @@
         </div>
 
     </div>
+    <div class="card shadow-sm border-0 mt-5">
+    <div class="card-body p-4">
+
+        <h4 class="fw-bold mb-3">応援コメント</h4>
+
+        <form action="/support-comment" method="post" class="mb-4">
+
+            <input type="text"
+                   name="supporterName"
+                   class="form-control mb-3"
+                   placeholder="名前">
+
+            <textarea name="message"
+                      class="form-control mb-3"
+                      rows="3"
+                      placeholder="応援コメントを書く"></textarea>
+
+            <button class="btn btn-primary">
+                コメントする
+            </button>
+
+        </form>
+
+        <div th:each="comment : ${supportComments}"
+             class="border-bottom py-3">
+
+            <p class="fw-bold mb-1"
+               th:text="${comment.supporterName}">
+            </p>
+
+            <p class="mb-1"
+               th:text="${comment.message}">
+            </p>
+
+            <small class="text-muted"
+                   th:text="${comment.createdAt}">
+            </small>
+
+        </div>
+
+    </div>
+</div>
 
     <!-- 戻る -->
     <div class="text-center mt-5">

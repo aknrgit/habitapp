@@ -14,77 +14,121 @@
 
 <main class="container py-5">
 
+    <!-- タイトル -->
     <div class="mb-4">
-        <h1 class="fw-bold">1日の流れ</h1>
-        <p class="text-muted">平日・休日ごとに、5:00〜22:00までの予定を入力できます。</p>
+
+        <h1 class="fw-bold">
+            1日の流れ
+        </h1>
+
+        <p class="text-muted">
+            平日・休日ごとに、
+            5:00〜22:00までの予定を入力できます。
+        </p>
+
     </div>
 
-    <!-- 平日・休日切り替え -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body p-4">
 
-            <label class="form-label fw-bold">スケジュールタイプ</label>
 
-            <select class="form-select">
-                <option value="WEEKDAY">平日</option>
-                <option value="HOLIDAY">休日</option>
-            </select>
-
-        </div>
-    </div>
-
+    <!-- スケジュール -->
     <div class="card shadow-sm border-0">
+
         <div class="card-body p-4">
 
-            <table class="table table-bordered align-middle bg-white">
+           <table class="table table-bordered align-middle bg-white">
 
-                <thead class="table-light">
-                    <tr>
-                        <th style="width: 120px;">時間</th>
-                        <th>予定</th>
-                        <th style="width: 240px;">操作</th>
-                    </tr>
-                </thead>
+    <thead class="table-light">
+        <tr>
+            <th style="width: 100px;">時間</th>
+            <th>平日</th>
+            <th>休日</th>
+        </tr>
+    </thead>
 
-                <tbody>
+    <tbody>
+        <tr th:each="hour : ${hours}">
 
-                    <tr th:each="hour : ${hours}">
+            <td class="fw-bold" th:text="${hour} + ':00'"></td>
 
-                        <td class="fw-bold"
-                            th:text="${hour} + ':00'">
-                        </td>
+            <!-- 平日 -->
+            <td>
+                <form action="/daily-schedule"
+                      method="post"
+                      class="d-flex align-items-center gap-2">
 
-                        <td>
-                            <input type="text"
-                                   class="form-control"
-                                   placeholder="予定を入力">
-                        </td>
+                    <span class="fw-bold text-primary"
+                          style="width: 400px;"
+                          th:text="${weekdayMap[hour.toString()]}">
+                    </span>
 
-                        <td>
-                            <button class="btn btn-primary btn-sm">
-                                保存
-                            </button>
+                    <input type="hidden"
+                           name="scheduleTime"
+                           th:value="${hour < 10 ? '0' + hour + ':00' : hour + ':00'}">
 
-                            <button class="btn btn-success btn-sm">
-                                編集
-                            </button>
+                    <input type="hidden"
+                           name="scheduleType"
+                           value="WEEKDAY">
 
-                            <button class="btn btn-danger btn-sm">
-                                削除
-                            </button>
-                        </td>
+                    <input type="text"
+                           name="content"
+                           class="form-control form-control-sm"
+                           placeholder="入力">
 
-                    </tr>
+                    <button class="btn btn-primary btn-sm" type="submit">
+                        保存
+                    </button>
+                </form>
+            </td>
 
-                </tbody>
+            <!-- 休日 -->
+            <td>
+                <form action="/daily-schedule"
+                      method="post"
+                      class="d-flex align-items-center gap-2">
 
-            </table>
+                    <span class="fw-bold text-success"
+                          style="width: 400px;"
+                          th:text="${holidayMap[hour.toString()]}">
+                    </span>
+
+                    <input type="hidden"
+                           name="scheduleTime"
+                           th:value="${hour < 10 ? '0' + hour + ':00' : hour + ':00'}">
+
+                    <input type="hidden"
+                           name="scheduleType"
+                           value="HOLIDAY">
+
+                    <input type="text"
+                           name="content"
+                           class="form-control form-control-sm"
+                           placeholder="入力">
+
+                    <button class="btn btn-primary btn-sm" type="submit">
+                        保存
+                    </button>
+                </form>
+            </td>
+
+        </tr>
+    </tbody>
+
+</table>
 
         </div>
+
     </div>
 
+    <!-- 戻る -->
     <div class="mt-4">
-        <a href="/today" class="btn btn-secondary">戻る</a>
+
+        <a href="/today"
+           class="btn btn-secondary">
+
+            戻る
+
+        </a>
+
     </div>
 
 </main>

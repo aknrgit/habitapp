@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 
 @Entity
 public class DailySchedule {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,6 +18,10 @@ public class DailySchedule {
     private String content;
 
     private String scheduleType;
+
+    public DailySchedule() {
+
+    }
 
     public DailySchedule(LocalTime scheduleTime,String content,String scheduleType) {
         this.scheduleTime = scheduleTime;
