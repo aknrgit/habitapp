@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>友達に応援コメントを送る</title>
+
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+</head>
+
+<body class="bg-light">
+
+<div th:replace="~{fragments :: header}"></div>
+
+<div class="container py-5">
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <h2 class="fw-bold mb-4">
+                友達に応援コメントを送る
+            </h2>
+
+            <form th:action="@{/comments/send}" method="post">
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        友達コード
+                    </label>
+
+                    <input
+                        type="text"
+                        name="friendCode"
+                        class="form-control"
+                        placeholder="友達コードを入力"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        あなたの名前
+                    </label>
+
+                    <input
+                        type="text"
+                        name="name"
+                        class="form-control"
+                        placeholder="名前を入力"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        応援コメント
+                    </label>
+
+                    <textarea
+                        name="message"
+                        class="form-control"
+                        rows="5"
+                        placeholder="応援コメントを書いてください"
+                        required></textarea>
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+                    コメントを送る
+                </button>
+
+                <a
+                    th:href="@{/comments}"
+                    class="btn btn-secondary ms-2">
+                    戻る
+                </a>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="~{fragments :: footer}"></div>
+
+</body>
+</html>
+```

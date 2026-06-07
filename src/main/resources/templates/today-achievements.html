@@ -79,25 +79,7 @@
     <div class="card shadow-sm border-0 mt-5">
     <div class="card-body p-4">
 
-        <h4 class="fw-bold mb-3">応援コメント</h4>
-
-        <form action="/support-comment" method="post" class="mb-4">
-
-            <input type="text"
-                   name="supporterName"
-                   class="form-control mb-3"
-                   placeholder="名前">
-
-            <textarea name="message"
-                      class="form-control mb-3"
-                      rows="3"
-                      placeholder="応援コメントを書く"></textarea>
-
-            <button class="btn btn-primary">
-                コメントする
-            </button>
-
-        </form>
+        <h4 class="fw-bold mb-3">友達からの応援コメント</h4>
 
         <div th:each="comment : ${supportComments}"
              class="border-bottom py-3">
@@ -115,6 +97,22 @@
             </small>
 
         </div>
+        <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body p-4">
+
+        <h4 class="fw-bold mb-3">あなたの友達コード</h4>
+
+        <div th:if="${loginUser != null}">
+          <p>あなたの友達コード</p>
+          <h3 th:text="${loginUser.friendCode}"></h3>
+        </div>
+
+        <p class="text-muted mb-0">
+            このコードを友達に教えると、応援コメントをもらえます。
+        </p>
+
+    </div>
+</div>
 
     </div>
 </div>
