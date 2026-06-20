@@ -2,27 +2,211 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
-<title>ログイン</title>
+<title>Habit App ログイン</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #74ebd5, #9face6);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .circle {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.25);
+        animation: float 8s infinite ease-in-out;
+    }
+
+    .circle:nth-child(1) {
+        width: 120px;
+        height: 120px;
+        top: 10%;
+        left: 15%;
+    }
+
+    .circle:nth-child(2) {
+        width: 180px;
+        height: 180px;
+        bottom: 10%;
+        right: 10%;
+        animation-delay: 2s;
+    }
+
+    .circle:nth-child(3) {
+        width: 80px;
+        height: 80px;
+        bottom: 20%;
+        left: 20%;
+        animation-delay: 4s;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-30px);
+        }
+    }
+
+    .login-card {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 40px;
+        width: 360px;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        z-index: 1;
+        animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    h1 {
+        margin-bottom: 10px;
+        color: #4b4b8f;
+    }
+
+    .subtitle {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 14px;
+    }
+
+    .emoji {
+        font-size: 42px;
+        animation: bounce 1.5s infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    input {
+        width: 100%;
+        padding: 13px;
+        margin: 10px 0 18px;
+        border: none;
+        border-radius: 12px;
+        background: #f1f3ff;
+        font-size: 15px;
+        box-sizing: border-box;
+        outline: none;
+        transition: 0.3s;
+    }
+
+    input:focus {
+        background: #ffffff;
+        box-shadow: 0 0 0 3px #9face6;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 20px rgba(118, 75, 162, 0.4);
+    }
+
+    a {
+        display: inline-block;
+        margin-top: 22px;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    .message {
+        margin-top: 15px;
+        color: #4b4b8f;
+        font-weight: bold;
+        min-height: 24px;
+    }
+</style>
 </head>
+
 <body>
 
-<h1>ログイン</h1>
+<div class="circle"></div>
+<div class="circle"></div>
+<div class="circle"></div>
 
-<form action="/login" method="post">
+<div class="login-card">
+    <div class="emoji" id="emoji">🌞</div>
 
-    <p>ログインID</p>
-    <input type="text" name="loginId">
+    <h1>Habit App</h1>
+    <p class="subtitle">今日を素晴らしい１日に！</p>
 
-    <p>パスワード</p>
-    <input type="password" name="password">
+    <form action="/login" method="post" id="loginForm">
 
-    <button type="submit">
-        ログイン
-    </button>
+        <input type="text" name="loginId" placeholder="ログインID">
 
-</form>
+        <input type="password" name="password" placeholder="パスワード">
 
-<a href="/register">新規登録はこちら</a>
+        <button type="submit">今日も始めよう！</button>
+
+    </form>
+
+    <div class="message" id="message"></div>
+
+    <a href="/register">新規登録はこちら</a>
+</div>
+
+<script>
+    const messages = [
+        "小さな一歩が未来を変える！",
+        "今日の習慣が明日の自信になる！",
+        "あなたならできる！",
+        "最高の1日を始めよう！"
+    ];
+
+    const emojis = ["🌞", "🔥", "🌱", "✨", "💪"];
+    let index = 0;
+
+    setInterval(() => {
+        document.getElementById("message").textContent = messages[index % messages.length];
+        document.getElementById("emoji").textContent = emojis[index % emojis.length];
+        index++;
+    }, 2000);
+
+    document.getElementById("loginForm").addEventListener("submit", function() {
+        document.querySelector("button").textContent = "ログイン中...";
+    });
+</script>
 
 </body>
 </html>

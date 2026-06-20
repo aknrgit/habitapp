@@ -53,17 +53,23 @@
                 </div>
 
                 <!-- 感想 -->
-                <div class="mt-2">
+                <!-- 感想 -->
+    <div class="mt-2">
+        <span class="fw-bold">感想：</span>
+        <span th:text="${commentMap[entry.key]}"></span>
+    </div>
 
-                    <span class="fw-bold">
-                        感想：
-                    </span>
+    <!-- 友達からの応援コメント -->
+    <div class="mt-2">
+        <span class="fw-bold">友達からの応援：</span>
 
-                    <span th:text="${commentMap[entry.key]}">
-                    </span>
-
-                </div>
-
+        <div th:each="comment : ${supportCommentMap[entry.key]}">
+            <p class="mb-1">
+                <span th:text="${comment.supporterName}"></span>：
+                <span th:text="${comment.message}"></span>
+            </p>
+        </div>
+    </div>
             </div>
 
         </div>

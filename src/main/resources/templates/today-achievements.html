@@ -76,44 +76,6 @@
         </div>
 
     </div>
-    <div class="card shadow-sm border-0 mt-5">
-    <div class="card-body p-4">
-
-        <h4 class="fw-bold mb-3">友達からの応援コメント</h4>
-
-        <div th:each="comment : ${supportComments}"
-             class="border-bottom py-3">
-
-            <p class="fw-bold mb-1"
-               th:text="${comment.supporterName}">
-            </p>
-
-            <p class="mb-1"
-               th:text="${comment.message}">
-            </p>
-
-            <small class="text-muted"
-                   th:text="${comment.createdAt}">
-            </small>
-
-        </div>
-        <div class="card shadow-sm border-0 mt-4">
-        <div class="card-body p-4">
-
-        <h4 class="fw-bold mb-3">あなたの友達コード</h4>
-
-        <div th:if="${loginUser != null}">
-          <p>あなたの友達コード</p>
-          <h3 th:text="${loginUser.friendCode}"></h3>
-        </div>
-
-        <p class="text-muted mb-0">
-            このコードを友達に教えると、応援コメントをもらえます。
-        </p>
-
-    </div>
-</div>
-
     </div>
 </div>
 

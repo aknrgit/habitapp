@@ -1,22 +1,99 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<!-- Header Fragment -->
 <header th:fragment="header">
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <style>
+        .habit-navbar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.35);
+        }
+
+        .habit-logo {
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+
+        .habit-logo:hover {
+            transform: scale(1.08) rotate(-2deg);
+        }
+
+        .nav-link {
+            position: relative;
+            margin: 0 6px;
+            font-weight: bold;
+            color: white !important;
+            transition: 0.3s;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-3px);
+            color: #fff7b2 !important;
+        }
+
+        .nav-link::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 2px;
+            width: 0;
+            height: 3px;
+            background: #fff7b2;
+            border-radius: 10px;
+            transition: 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 70%;
+        }
+
+        .sparkle {
+            display: inline-block;
+            animation: sparkle 1.5s infinite ease-in-out;
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                transform: scale(1) rotate(0deg);
+            }
+            50% {
+                transform: scale(1.25) rotate(15deg);
+            }
+        }
+
+        .habit-footer {
+            background: linear-gradient(135deg, #fdfbfb, #ebedee);
+            color: #666;
+            font-weight: bold;
+        }
+
+        .footer-message {
+            font-size: 0.9rem;
+            color: #764ba2;
+            animation: fadeMessage 3s infinite;
+        }
+
+        @keyframes fadeMessage {
+            0%, 100% {
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+    </style>
+
+    <nav class="navbar navbar-expand-lg navbar-dark habit-navbar">
 
         <div class="container">
 
-            <!-- ロゴ -->
-            <a class="navbar-brand fw-bold"
-               href="/today">
-
+            <a class="navbar-brand fw-bold habit-logo" href="/today">
+                <span class="sparkle">✨</span>
                 Habit App
-
             </a>
 
-            <!-- ハンバーガーボタン -->
             <button class="navbar-toggler"
                     type="button"
                     data-bs-toggle="collapse"
@@ -26,53 +103,21 @@
 
             </button>
 
-            <!-- メニュー -->
-            <div class="collapse navbar-collapse"
-                 id="navbarNav">
+            <div class="collapse navbar-collapse" id="navbarNav">
 
                 <div class="navbar-nav ms-auto">
 
-                    <!-- 今日の習慣 -->
-                    <a class="nav-link"
-                       href="/today">
+                    <a class="nav-link" href="/today">🌞 今日の習慣</a>
 
-                        今日の習慣
+                    <a class="nav-link" href="/achievements/today">🔥 今日の達成記録</a>
 
-                    </a>
+                    <a class="nav-link" href="/achievements">🏆 全ての達成記録</a>
 
-                     <!-- 今日の達成記録 -->
-                    <a class="nav-link"
-                       href="/achievements/today">
+                    <a class="nav-link" href="/habits">⚙️ 習慣設定</a>
 
-                        今日の達成記録
+                    <a class="nav-link" href="/daily-schedule">🕒 1日の流れ</a>
 
-                    </a>
-
-
-                    <!-- 達成記録 -->
-                    <a class="nav-link"
-                       href="/achievements">
-
-                        全ての達成記録
-
-                    </a>
-
-
-                    <!-- 習慣設定 -->
-                    <a class="nav-link"
-                       href="/habits">
-
-                        習慣設定
-
-                    </a>
-
-                    <!-- 習慣設定 -->
-                    <a class="nav-link"
-                       href="/daily-schedule">
-
-                        1日の流れ
-
-                    </a>
+                    <a class="nav-link" href="/friend">🤝 友達の習慣</a>
 
                 </div>
 
@@ -82,13 +127,28 @@
 
     </nav>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const links = document.querySelectorAll(".nav-link");
+
+            links.forEach(link => {
+                link.addEventListener("click", function() {
+                    link.style.transform = "scale(0.9)";
+                    setTimeout(() => {
+                        link.style.transform = "";
+                    }, 150);
+                });
+            });
+        });
+    </script>
+
 </header>
 
-<!-- Footer Fragment -->
 <footer th:fragment="footer"
-        class="text-center py-4 mt-5 text-muted">
+        class="text-center py-4 mt-5 habit-footer">
 
-    © 2026 Habit App
+    <div>© 2026 Habit App</div>
+    <div class="footer-message">今日の小さな一歩が、未来を変える 🌱</div>
 
 </footer>
 

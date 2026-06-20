@@ -26,9 +26,11 @@ import com.example.habitapp.entity.SupportComment;
 import com.example.habitapp.entity.User;
 import com.example.habitapp.repository.DailyCommentRepository;
 import com.example.habitapp.repository.DailyScheduleRepository;
+import com.example.habitapp.repository.FriendRepository;
 import com.example.habitapp.repository.HabitRecordRepository;
 import com.example.habitapp.repository.Habitrepository;
 import com.example.habitapp.repository.SupportCommentRepository;
+import com.example.habitapp.repository.UserRepository;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -42,6 +44,12 @@ import com.example.habitapp.dto.CharacterData;
 public class HabitController {
     @Autowired
     Habitrepository habitrepository;
+
+    @Autowired
+    FriendRepository friendRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
 
     //習慣全件表示
@@ -287,11 +295,18 @@ public class HabitController {
             // 感想の日付を取得
             LocalDate date = comment.getCreatedDate();
             // 日付と感想をMapへ保存
-            commentMap.put(date,comment.getComment());
+            commentMap.put(date,comment.getComment());  
         }
-        System.out.println("achievementMap = " + achievementMap);
         model.addAttribute("achievementMap",achievementMap);
         model.addAttribute("commentMap",commentMap);
+
+        List<SupportComment> supportComments = supportCommentRepository.findAllByOrderByCreatedAtDesc();
+        Map<LocalDate, List<SupportComment>> supportCommentMap = new LinkedHashMap<>();
+        for (SupportComment comment : supportComments) {
+            LocalDate date = comment.getCreatedAt().toLocalDate();
+            supportCommentMap.computeIfAbsent(date, d -> new ArrayList<>()).add(comment);
+        }
+        model.addAttribute("supportCommentMap", supportCommentMap);
         return "achievements";
     }
     //１日のスケージュール組み立て
@@ -392,6 +407,7 @@ public class HabitController {
     public String showSupportPage() {
         return "support";
     }
+
 
 
 }

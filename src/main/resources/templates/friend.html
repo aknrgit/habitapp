@@ -2,12 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
-<title>友達に応援コメントを送る</title>
+<title>友達</title>
 
-<link
-href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-rel="stylesheet">
-
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet">
 </head>
 
 <body class="bg-light">
@@ -16,69 +14,74 @@ rel="stylesheet">
 
 <div class="container py-5">
 
-    <div class="card shadow-sm">
+    <h1 class="fw-bold mb-4">友達</h1>
+
+    <!-- 友達追加 -->
+    <div class="card shadow-sm mb-4">
         <div class="card-body">
 
-            <h2 class="fw-bold mb-4">
-                友達に応援コメントを送る
-            </h2>
+            <h3 class="fw-bold mb-3">友達を追加</h3>
 
-            <form th:action="@{/comments/send}" method="post">
+            <form th:action="@{/friend/add}" method="post">
 
                 <div class="mb-3">
-                    <label class="form-label">
-                        友達コード
-                    </label>
+                    <label class="form-label">友達コード</label>
 
-                    <input
-                        type="text"
-                        name="friendCode"
-                        class="form-control"
-                        placeholder="友達コードを入力"
-                        required>
+                    <input type="text"
+                           name="friendCode"
+                           class="form-control"
+                           placeholder="友達コードを入力"
+                           required>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">
-                        あなたの名前
-                    </label>
-
-                    <input
-                        type="text"
-                        name="name"
-                        class="form-control"
-                        placeholder="名前を入力"
-                        required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">
-                        応援コメント
-                    </label>
-
-                    <textarea
-                        name="message"
-                        class="form-control"
-                        rows="5"
-                        placeholder="応援コメントを書いてください"
-                        required></textarea>
-                </div>
-
-                <button
-                    type="submit"
-                    class="btn btn-primary">
-                    コメントを送る
+                <button type="submit" class="btn btn-primary">
+                    友達追加
                 </button>
-
-                <a
-                    th:href="@{/comments}"
-                    class="btn btn-secondary ms-2">
-                    戻る
-                </a>
 
             </form>
 
         </div>
+    </div>
+
+    <!-- 登録済みの友達 -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <h3 class="fw-bold mb-3">登録済みの友達</h3>
+
+            <div th:if="${friends == null || friends.isEmpty()}">
+                <p class="text-muted">まだ友達が登録されていません。</p>
+            </div>
+
+            <div th:each="friend : ${friends}"
+                 class="border rounded p-3 mb-3 d-flex justify-content-between align-items-center">
+
+                <div>
+                    <h5 class="fw-bold mb-1"
+                        th:text="${friend.loginId}">
+                        友達名
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        友達コード：
+                        <span th:text="${friend.friendCode}"></span>
+                    </p>
+                </div>
+
+                <a th:href="@{/friend/timeline/{id}(id=${friend.id})}"
+                   class="btn btn-success">
+                    タイムラインを見る
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a th:href="@{/today}" class="btn btn-secondary">
+            戻る
+        </a>
     </div>
 
 </div>
@@ -87,4 +90,3 @@ rel="stylesheet">
 
 </body>
 </html>
-```
