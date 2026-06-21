@@ -8,4 +8,5 @@ import com.example.habitapp.entity.DailyComment;
 
 public interface DailyCommentRepository extends JpaRepository<DailyComment,Long> {
     List<DailyComment> findAllByOrderByCreatedDateDesc();
+    List<DailyComment> findByUserIdOrderByCreatedDateDesc(Long userId);
 }

@@ -54,36 +54,58 @@ public class HabitController {
 
     //習慣全件表示
     @GetMapping("/habits")
-    public String showHabitList(Model model) {
-        model.addAttribute("habits", habitrepository.findAll());
+    public String showHabitList(Model model, HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/login";
+
+        List<Habit> habits = habitrepository.findByOwnerUserId(loginUser.getId());
+        model.addAttribute("habits", habits);
         return "habits";
     }
 
     //習慣化セーブ
     @PostMapping("/habits")
-    public String addHabit(@RequestParam String title,@RequestParam String description) {
+    public String addHabit(@RequestParam String title,@RequestParam String description, HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/login";
+
         Habit habit = new Habit(title, description);
+        habit.setOwnerUserId(loginUser.getId());
         habitrepository.save(habit);
         return "redirect:/habits";
     }
     //削除
     @GetMapping("/habits/delete")
-    public String deleteHabit(@RequestParam Long id) {
-        habitrepository.deleteById(id);
+    public String deleteHabit(@RequestParam Long id, HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/login";
+
+        Habit habit = habitrepository.findById(id).orElse(null);
+        if (habit != null && loginUser.getId().equals(habit.getOwnerUserId())) {
+            habitrepository.deleteById(id);
+        }
         return "redirect:/habits";
     }
     //編集
     @GetMapping("/habits/edit")
-    public String editHabit(@RequestParam Long id, Model model) {
+    public String editHabit(@RequestParam Long id, Model model, HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/login";
+
         Habit habit = habitrepository.findById(id).orElse(null);
+        if (habit == null || !loginUser.getId().equals(habit.getOwnerUserId())) return "redirect:/habits";
+
         model.addAttribute("habit", habit);
         return "habit-edit";
     }
 
     @PostMapping("/habits/update")
-    public String updateHabit(@RequestParam Long id,@RequestParam String title,@RequestParam String description) {
+    public String updateHabit(@RequestParam Long id,@RequestParam String title,@RequestParam String description, HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/login";
         // ① 既存データを取得
         Habit habit = habitrepository.findById(id).orElse(null);
+        if (habit == null || !loginUser.getId().equals(habit.getOwnerUserId())) return "redirect:/habits";
 
         // ② 値を変更
         habit.setTitle(title);
@@ -95,8 +117,10 @@ public class HabitController {
     }
     @GetMapping("/today")
     public String showHabitListToday(Model model,HttpSession session) {
+    User loginUser = (User) session.getAttribute("loginUser");
+    if (loginUser == null) return "redirect:/login";
 
-    List<Habit> habits = habitrepository.findAll();
+    List<Habit> habits = habitrepository.findByOwnerUserId(loginUser.getId());
 
     Set<Long> completedHabitIds = new HashSet<>();
 
@@ -186,9 +210,6 @@ public class HabitController {
         );
     }
     
-    User loginUser =
-        (User) session.getAttribute("loginUser");
-
     if (loginUser != null) {
         model.addAttribute("loginUser", loginUser);
     }
@@ -215,7 +236,11 @@ public class HabitController {
         return "redirect:/today";
     }
     @GetMapping("/habits/{id}")
-    public String showHabitDetail(@PathVariable Long id, Model model) {
+    public String showHabitDetail(@PathVariable Long id, Model model, HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/login";
+        Habit check = habitrepository.findById(id).orElse(null);
+        if (check == null || !loginUser.getId().equals(check.getOwnerUserId())) return "redirect:/habits";
         Habit habit = habitrepository.findById(id).orElse(null);
 
         List<Integer> monthlyRates = new ArrayList<>();
@@ -246,30 +271,50 @@ public class HabitController {
 
     @GetMapping("/achievements/today")
     public String showTodayAchievements(Model model,HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/login";
+
         List<HabitRecord> records = habitRecordRepository.findByAchievedDate(LocalDate.now());
+        // ユーザの習慣に紐づく記録のみ残す
+        records.removeIf(r -> r.getHabit() == null || !loginUser.getId().equals(r.getHabit().getOwnerUserId()));
         model.addAttribute("records", records);
 
         List<SupportComment> supportComments = supportCommentRepository.findAllByOrderByCreatedAtDesc();
         model.addAttribute("supportComments", supportComments);
 
-        User loginUser = (User) session.getAttribute("loginUser");
         model.addAttribute("loginUser", loginUser);
         return "today-achievements";
     }
     @Autowired
     DailyCommentRepository dailyCommentRepository;
     @PostMapping("/daily-comment")
-    public String saveDailyComment(@RequestParam String comment) {
-        DailyComment dailyComment = new DailyComment(comment,LocalDate.now());
+    public String saveDailyComment(@RequestParam String comment, HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        Long userId = (loginUser != null) ? loginUser.getId() : null;
+
+        DailyComment dailyComment = new DailyComment(userId, comment, LocalDate.now());
         dailyCommentRepository.save(dailyComment);
         return "redirect:/achievements/today";
     }
 
     @GetMapping("/achievements")
-    public String showAchievements(Model model) {
+    public String showAchievements(Model model, HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/login";
+
         List<HabitRecord> records = habitRecordRepository.findAllByOrderByAchievedDateDesc();
-        System.out.println("records = " + records.size());
+        // ユーザの習慣に紐づく記録のみ残す
+        records.removeIf(r -> r.getHabit() == null || !loginUser.getId().equals(r.getHabit().getOwnerUserId()));
+
         List<DailyComment> comments = dailyCommentRepository.findAllByOrderByCreatedDateDesc();
+        // ユーザの感想のみ残す
+        List<DailyComment> userComments = new ArrayList<>();
+        for (DailyComment c : comments) {
+            if (c.getUserId() != null && c.getUserId().equals(loginUser.getId())) {
+                userComments.add(c);
+            }
+        }
+
         // 日付ごとの習慣一覧を保存するMap
         Map<LocalDate, List<String>> achievementMap = new LinkedHashMap<>();
         // 日付ごとの感想を保存するMap
@@ -277,34 +322,28 @@ public class HabitController {
 
          // 達成記録を1件ずつ取り出す
         for (HabitRecord record : records) {
-            // 達成日を取得
             LocalDate date = record.getAchievedDate();
-            // その日付のListが無ければ新しく作る
-            // その後、習慣タイトルを追加
-            achievementMap
-                .computeIfAbsent(
-                    date,
-                    d -> new ArrayList<>()
-                )
-                .add(
-                    record.getHabit().getTitle()
-                );
+            achievementMap.computeIfAbsent(date, d -> new ArrayList<>()).add(record.getHabit().getTitle());
         }
-        // 感想を1件ずつ取り出す
-        for (DailyComment comment : comments) {
-            // 感想の日付を取得
+        // 感想を1件ずつ取り出す（ログインユーザのみ）
+        for (DailyComment comment : userComments) {
             LocalDate date = comment.getCreatedDate();
-            // 日付と感想をMapへ保存
-            commentMap.put(date,comment.getComment());  
+            commentMap.put(date, comment.getComment());
         }
         model.addAttribute("achievementMap",achievementMap);
         model.addAttribute("commentMap",commentMap);
 
+        // 支援コメントはログインユーザの感想に紐づくもののみ表示
+        List<Long> userDailyCommentIds = new ArrayList<>();
+        for (DailyComment c : userComments) userDailyCommentIds.add(c.getId());
+
         List<SupportComment> supportComments = supportCommentRepository.findAllByOrderByCreatedAtDesc();
         Map<LocalDate, List<SupportComment>> supportCommentMap = new LinkedHashMap<>();
         for (SupportComment comment : supportComments) {
-            LocalDate date = comment.getCreatedAt().toLocalDate();
-            supportCommentMap.computeIfAbsent(date, d -> new ArrayList<>()).add(comment);
+            if (comment.getDailyCommentId() != null && userDailyCommentIds.contains(comment.getDailyCommentId())) {
+                LocalDate date = comment.getCreatedAt().toLocalDate();
+                supportCommentMap.computeIfAbsent(date, d -> new ArrayList<>()).add(comment);
+            }
         }
         model.addAttribute("supportCommentMap", supportCommentMap);
         return "achievements";
@@ -396,7 +435,8 @@ public class HabitController {
             new SupportComment(
                 supporterName,
                 message,
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                null
             );
 
         supportCommentRepository.save(comment);

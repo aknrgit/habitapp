@@ -20,23 +20,16 @@ public class SupportComment {
 
     private LocalDateTime createdAt;
 
-    private Long targetUserId;
-    
+    private Long dailyCommentId;
 
     public SupportComment() {
     }
 
-    public SupportComment(String supporterName, String message, LocalDateTime createdAt) {
+    public SupportComment(String supporterName, String message, LocalDateTime createdAt, Long dailyCommentId) {
         this.supporterName = supporterName;
         this.message = message;
         this.createdAt = createdAt;
-    }
-
-    public SupportComment(String supporterName, String message, LocalDateTime createdAt, Long targetUserId) {
-        this.supporterName = supporterName;
-        this.message = message;
-        this.createdAt = createdAt;
-        this.targetUserId = targetUserId;
+        this.dailyCommentId = dailyCommentId;
     }
 
     public Long getId() {
@@ -55,11 +48,7 @@ public class SupportComment {
         return createdAt;
     }
 
-    public Long getTargetUserId() {
-        return targetUserId;
-    }
-
-    public void setTargetUserId(Long targetUserId) {
-        this.targetUserId = targetUserId;
+    public Long getDailyCommentId() {
+        return dailyCommentId;
     }
 }

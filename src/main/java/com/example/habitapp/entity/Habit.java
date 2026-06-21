@@ -12,6 +12,7 @@ public class Habit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private Long ownerUserId;
     private String title;
     private String description;
 
@@ -20,6 +21,14 @@ public class Habit {
     public Habit(String title, String description) {
         this.title = title;
         this.description = description;
+    }
+
+    public Long getOwnerUserId() {
+        return ownerUserId;
+    }
+
+    public void setOwnerUserId(Long ownerUserId) {
+        this.ownerUserId = ownerUserId;
     }
 
     public Long getId() {

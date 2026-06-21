@@ -1,14 +1,246 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-<meta charset="UTF-8">
-<title>友達タイムライン</title>
-</head>
-<body>
+<style>
+    body {
+        background: linear-gradient(135deg, #eef2ff, #fdfbfb);
+    }
 
-<h1>友達タイムライン</h1>
+    .timeline-wrap {
+        max-width: 760px;
+        margin: 0 auto;
+    }
 
-<a th:href="@{/friend}">戻る</a>
+    .timeline-title {
+        font-weight: bold;
+        color: #4b4b8f;
+        text-align: center;
+        margin-bottom: 30px;
+    }
 
-</body>
-</html>
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        text-decoration: none;
+        color: #667eea;
+        font-weight: bold;
+    }
+
+    .post-card {
+        background: white;
+        border: none;
+        border-radius: 24px;
+        box-shadow: 0 12px 30px rgba(102, 126, 234, 0.18);
+        transition: 0.3s;
+        animation: fadeUp 0.6s ease;
+    }
+
+    .post-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 18px 40px rgba(102, 126, 234, 0.28);
+    }
+
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(25px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-right: 12px;
+    }
+
+    .post-user {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .post-date {
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    .post-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        background: #f7f8ff;
+        border-radius: 16px;
+        padding: 16px;
+        margin-top: 15px;
+    }
+
+    .comment-area {
+        background: #fafafa;
+        border-radius: 18px;
+        padding: 15px;
+    }
+
+    .comment-box {
+        background: white;
+        border-left: 4px solid #667eea;
+        padding: 10px 14px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+    }
+
+    .comment-name {
+        font-weight: bold;
+        color: #4b4b8f;
+    }
+
+    .comment-date {
+        font-size: 0.8rem;
+        color: #999;
+        margin-left: 8px;
+    }
+
+    .comment-form textarea,
+    .comment-form input {
+        border-radius: 14px;
+        border: 1px solid #ddd;
+    }
+
+    .comment-form textarea:focus,
+    .comment-form input:focus {
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        border-color: #667eea;
+    }
+
+    .comment-btn {
+        border: none;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        padding: 8px 20px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+    .comment-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 18px rgba(118, 75, 162, 0.3);
+    }
+
+    .empty-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        color: #777;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+</style>
+
+<div class="container py-5">
+    <div class="timeline-wrap">
+
+        <a th:href="@{/friend}" class="back-link">← 友達一覧に戻る</a>
+
+        <h2 class="timeline-title"
+            th:text="${friendUser.loginId} + 'さんのタイムライン 🌈'">
+            友達タイムライン
+        </h2>
+
+        <div th:if="${dailyComments == null || dailyComments.isEmpty()}"
+             class="empty-card">
+            <h4>🌱 まだ今日の感想がありません</h4>
+            <p>友達の投稿を楽しみに待ちましょう。</p>
+        </div>
+
+        <div th:each="post : ${dailyComments}"
+             class="card post-card p-4 mb-4">
+
+            <div class="d-flex align-items-center">
+                <div class="avatar">🌞</div>
+
+                <div>
+                    <div class="post-user"
+                         th:text="${friendUser.loginId}">
+                        友達名
+                    </div>
+
+                    <div class="post-date"
+                         th:text="${post.createdDate}">
+                        日付
+                    </div>
+                </div>
+            </div>
+
+            <div class="post-content">
+                <span>💭 </span>
+                <span th:text="${post.comment}">
+                    今日の感想
+                </span>
+            </div>
+
+            <hr>
+
+            <div class="comment-area">
+
+                <h5>💬 コメント</h5>
+
+                <div th:if="${commentMap[post.id] == null || commentMap[post.id].isEmpty()}">
+                    <p class="text-muted">まだコメントはありません。最初の応援コメントを送ろう！</p>
+                </div>
+
+                <div th:each="c : ${commentMap[post.id]}"
+                     class="comment-box">
+
+                    <span class="comment-name"
+                          th:text="${c.supporterName}">
+                        名前
+                    </span>
+
+                    <span class="comment-date"
+                          th:text="${#temporals.format(c.createdAt, 'yyyy-MM-dd HH:mm')}">
+                    </span>
+
+                    <p class="mb-0 mt-2"
+                       th:text="${c.message}">
+                        コメント
+                    </p>
+                </div>
+
+                <form th:action="@{/comments/send}"
+                      method="post"
+                      class="comment-form mt-3">
+
+                    <input type="hidden"
+                           name="dailyCommentId"
+                           th:value="${post.id}">
+
+                    <input type="text"
+                           name="name"
+                           placeholder="あなたの名前"
+                           required
+                           class="form-control mb-2">
+
+                    <textarea name="message"
+                              placeholder="応援コメントを書く"
+                              required
+                              class="form-control mb-2"
+                              rows="3"></textarea>
+
+                    <button type="submit"
+                            class="btn btn-primary comment-btn">
+                        ✨ コメントする
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

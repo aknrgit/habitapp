@@ -2,9 +2,12 @@ package com.example.habitapp.controller;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.ui.Model;
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.habitapp.entity.DailyComment;
 import com.example.habitapp.entity.Friend;
 import com.example.habitapp.entity.SupportComment;
 import com.example.habitapp.entity.User;
@@ -26,21 +30,25 @@ public class FriendController {
     private final SupportCommentRepository supportCommentRepository;
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
+    private final com.example.habitapp.repository.DailyCommentRepository dailyCommentRepository;
 
     public FriendController(SupportCommentRepository supportCommentRepository,
                             FriendRepository friendRepository,
-                            UserRepository userRepository) {
+                            UserRepository userRepository,
+                            com.example.habitapp.repository.DailyCommentRepository dailyCommentRepository) {
         this.supportCommentRepository = supportCommentRepository;
         this.friendRepository = friendRepository;
         this.userRepository = userRepository;
+        this.dailyCommentRepository = dailyCommentRepository;
     }
 
 
 
     @PostMapping("/friend/add")
-    public String addFriend(@RequestParam String friendCode) {
+    public String addFriend(@RequestParam String friendCode, HttpSession session) {
 
-        Long loginUserId = 1L;
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/login";
 
         System.out.println("入力された友達コード = " + friendCode);
 
@@ -53,7 +61,7 @@ public class FriendController {
 
         System.out.println("見つかった友達ID = " + friendUser.getId());
 
-        Friend friend = new Friend(loginUserId, friendUser.getId());
+        Friend friend = new Friend(loginUser.getId(), friendUser.getId());
 
         friendRepository.save(friend);
 
@@ -63,12 +71,13 @@ public class FriendController {
     }
 
     @GetMapping("/friend")
-    public String friend(Model model) {
+    public String friend(Model model, HttpSession session) {
 
-        Long loginUserId = 1L;
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) return "redirect:/login";
 
         List<Friend> friendLinks =
-                friendRepository.findByOwnerUserId(loginUserId);
+                friendRepository.findByOwnerUserId(loginUser.getId());
 
         System.out.println("friendLinks.size() = " + friendLinks.size());
 
@@ -90,33 +99,54 @@ public class FriendController {
     }
 
   
-    @PostMapping("/comments/send")
-    public String sendComment(
-        @RequestParam String name,
-        @RequestParam String message,
-        RedirectAttributes redirectAttributes) {
-    SupportComment comment = new SupportComment(
-            name,
-            message,
-            LocalDateTime.now()
-    );
+    @GetMapping("/friend/timeline/{friendUserId}")
+    public String showFriendTimeline(@PathVariable Long friendUserId, Model model) {
 
-    supportCommentRepository.save(comment);
+        User friendUser = userRepository.findById(friendUserId).orElseThrow();
 
-    redirectAttributes.addFlashAttribute(
-            "success",
-            "コメントを送信しました！"
-    );
+        List<DailyComment> dailyComments =
+                dailyCommentRepository.findByUserIdOrderByCreatedDateDesc(friendUserId);
 
-    return "redirect:/friend";
-    }
+        Map<Long, List<SupportComment>> commentMap = new HashMap<>();
 
-    @GetMapping("/friend/timeline/{id}")
-    public String showFriendTimeline(
-            @PathVariable Long id,
-            Model model) {
-        System.out.println("友達タイムラインID = " + id);
+        for (DailyComment dailyComment : dailyComments) {
+            List<SupportComment> comments =
+                    supportCommentRepository.findByDailyCommentIdOrderByCreatedAtAsc(dailyComment.getId());
+
+            commentMap.put(dailyComment.getId(), comments);
+        }
+
+        model.addAttribute("friendUser", friendUser);
+        model.addAttribute("dailyComments", dailyComments);
+        model.addAttribute("commentMap", commentMap);
 
         return "friend-timeline";
     }
+
+        @PostMapping("/comments/send")
+        public String sendComment(@RequestParam Long dailyCommentId,
+                    @RequestParam(required = false) String name,
+                    @RequestParam String message,
+                    HttpSession session) {
+
+        DailyComment dailyComment =
+            dailyCommentRepository.findById(dailyCommentId).orElseThrow();
+
+        User loginUser = (User) session.getAttribute("loginUser");
+        String supporterName = name;
+        if ((supporterName == null || supporterName.isBlank()) && loginUser != null) {
+            supporterName = loginUser.getLoginId();
+        }
+
+        SupportComment supportComment = new SupportComment(
+            supporterName,
+            message,
+            LocalDateTime.now(),
+            dailyCommentId
+        );
+
+        supportCommentRepository.save(supportComment);
+
+        return "redirect:/friend/timeline/" + dailyComment.getUserId();
+        }
 }

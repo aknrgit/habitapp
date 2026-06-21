@@ -8,7 +8,7 @@ import com.example.habitapp.entity.SupportComment;
 
 public interface SupportCommentRepository extends JpaRepository<SupportComment, Long> {
 
-    List<SupportComment> findAllByOrderByCreatedAtDesc();
-    List<SupportComment> findByTargetUserId(Long targetUserId);
+    List<SupportComment> findByDailyCommentIdOrderByCreatedAtAsc(Long dailyCommentId);
 
+    List<SupportComment> findAllByOrderByCreatedAtDesc();
 }
