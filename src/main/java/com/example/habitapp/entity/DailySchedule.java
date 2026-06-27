@@ -18,6 +18,8 @@ public class DailySchedule {
     private String content;
 
     private String scheduleType;
+    
+    private Long ownerUserId;
 
     public DailySchedule() {
 
@@ -27,6 +29,14 @@ public class DailySchedule {
         this.scheduleTime = scheduleTime;
         this.content = content;
         this.scheduleType = scheduleType;
+    }
+
+    public Long getOwnerUserId() {
+        return ownerUserId;
+    }
+
+    public void setOwnerUserId(Long ownerUserId) {
+        this.ownerUserId = ownerUserId;
     }
 
     public Long getId() {

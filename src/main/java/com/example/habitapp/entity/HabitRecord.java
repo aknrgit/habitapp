@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Column;
 
 @Entity
 public class HabitRecord {
@@ -13,6 +14,7 @@ public class HabitRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "habit_id")
     private Long habitId;
 
     private LocalDate achievedDate;
@@ -39,7 +41,7 @@ public class HabitRecord {
 
     @ManyToOne
     @JoinColumn(
-        name = "habitId",
+        name = "habit_id",
         insertable = false,
         updatable = false
     )

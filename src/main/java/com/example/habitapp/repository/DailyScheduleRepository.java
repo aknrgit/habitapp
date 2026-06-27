@@ -8,4 +8,5 @@ import com.example.habitapp.entity.DailySchedule;
 
 public interface DailyScheduleRepository extends JpaRepository<DailySchedule, Long> {
     List<DailySchedule> findAllByOrderByScheduleTimeAsc();
+    List<DailySchedule> findByOwnerUserIdOrderByScheduleTimeAsc(Long ownerUserId);
 }

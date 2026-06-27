@@ -35,6 +35,8 @@ import com.example.habitapp.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 
 import com.example.habitapp.dto.CharacterData;
+import java.util.Set;
+import java.util.LinkedHashSet;
 
 
 
@@ -301,13 +303,15 @@ public class HabitController {
     public String showAchievements(Model model, HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) return "redirect:/login";
-
         List<HabitRecord> records = habitRecordRepository.findAllByOrderByAchievedDateDesc();
         // ユーザの習慣に紐づく記録のみ残す
-        records.removeIf(r -> r.getHabit() == null || !loginUser.getId().equals(r.getHabit().getOwnerUserId()));
+        records.removeIf(r -> {
+            Habit habit = habitrepository.findById(r.getHabitId()).orElse(null);
+            return habit == null || !loginUser.getId().equals(habit.getOwnerUserId());
+        });
 
         List<DailyComment> comments = dailyCommentRepository.findAllByOrderByCreatedDateDesc();
-        // ユーザの感想のみ残す
+        // ユーザの感想のみ抽出
         List<DailyComment> userComments = new ArrayList<>();
         for (DailyComment c : comments) {
             if (c.getUserId() != null && c.getUserId().equals(loginUser.getId())) {
@@ -315,17 +319,28 @@ public class HabitController {
             }
         }
 
+        // 日付の集合（達成記録の日付と感想の日付の和集合）を作成
+        Set<LocalDate> dates = new LinkedHashSet<>();
+        for (HabitRecord record : records) dates.add(record.getAchievedDate());
+        for (DailyComment comment : userComments) dates.add(comment.getCreatedDate());
+
         // 日付ごとの習慣一覧を保存するMap
         Map<LocalDate, List<String>> achievementMap = new LinkedHashMap<>();
         // 日付ごとの感想を保存するMap
         Map<LocalDate, String> commentMap = new LinkedHashMap<>();
 
-         // 達成記録を1件ずつ取り出す
+        // まず全ての日付を初期化（順序はrecords の取得順→comments の順）
+        for (LocalDate d : dates) {
+            achievementMap.put(d, new ArrayList<>());
+        }
+
+        // 達成記録を追加
         for (HabitRecord record : records) {
             LocalDate date = record.getAchievedDate();
             achievementMap.computeIfAbsent(date, d -> new ArrayList<>()).add(record.getHabit().getTitle());
         }
-        // 感想を1件ずつ取り出す（ログインユーザのみ）
+
+        // 感想を追加（ログインユーザのみ）
         for (DailyComment comment : userComments) {
             LocalDate date = comment.getCreatedDate();
             commentMap.put(date, comment.getComment());
@@ -346,6 +361,9 @@ public class HabitController {
             }
         }
         model.addAttribute("supportCommentMap", supportCommentMap);
+        System.out.println("achievementMap = " + achievementMap);
+        System.out.println("commentMap = " + commentMap);
+        
         return "achievements";
     }
     //１日のスケージュール組み立て
