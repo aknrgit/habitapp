@@ -94,6 +94,7 @@ public class FriendController {
         System.out.println("friends.size() = " + friends.size());
 
         model.addAttribute("friends", friends);
+        model.addAttribute("loginUser", loginUser);
 
         return "friend";
     }
