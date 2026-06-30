@@ -95,6 +95,7 @@ public class FriendController {
 
         model.addAttribute("friends", friends);
         model.addAttribute("loginUser", loginUser);
+        model.addAttribute("friendCode", loginUser.getFriendCode());
 
         return "friend";
     }
