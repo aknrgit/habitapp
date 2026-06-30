@@ -2,25 +2,234 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
-<title>ユーザー登録</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit App ユーザー登録</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .circle {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.25);
+        animation: float 8s infinite ease-in-out;
+    }
+
+    .circle:nth-child(1) {
+        width: 120px;
+        height: 120px;
+        top: 10%;
+        left: 15%;
+    }
+
+    .circle:nth-child(2) {
+        width: 180px;
+        height: 180px;
+        bottom: 10%;
+        right: 10%;
+        animation-delay: 2s;
+    }
+
+    .circle:nth-child(3) {
+        width: 80px;
+        height: 80px;
+        bottom: 20%;
+        left: 20%;
+        animation-delay: 4s;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-30px);
+        }
+    }
+
+    .register-card {
+        background: rgba(255, 255, 255, 0.92);
+        padding: 32px 24px;
+        width: 88vw;
+        max-width: 420px;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        z-index: 1;
+        animation: fadeIn 1s ease;
+        box-sizing: border-box;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .emoji {
+        font-size: 42px;
+        animation: bounce 1.5s infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    h1 {
+        margin-bottom: 10px;
+        color: #4b4b8f;
+    }
+
+    .subtitle {
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 14px;
+    }
+
+    input {
+        width: 100%;
+        padding: 13px;
+        margin: 10px 0 18px;
+        border: none;
+        border-radius: 12px;
+        background: #f1f3ff;
+        font-size: 15px;
+        box-sizing: border-box;
+        outline: none;
+        transition: 0.3s;
+    }
+
+    input:focus {
+        background: #ffffff;
+        box-shadow: 0 0 0 3px #a6c1ee;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 20px rgba(118, 75, 162, 0.4);
+    }
+
+    a {
+        display: inline-block;
+        margin-top: 22px;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    .message {
+        margin-top: 15px;
+        color: #4b4b8f;
+        font-weight: bold;
+        min-height: 24px;
+    }
+
+    @media screen and (max-width: 480px) {
+        h1 {
+            font-size: 28px;
+        }
+
+        input {
+            font-size: 16px;
+            padding: 14px;
+        }
+
+        button {
+            font-size: 16px;
+            padding: 15px;
+        }
+
+        .emoji {
+            font-size: 44px;
+        }
+    }
+</style>
 </head>
+
 <body>
 
-<h1>ユーザー登録</h1>
+<div class="circle"></div>
+<div class="circle"></div>
+<div class="circle"></div>
 
-<form action="/register" method="post">
+<div class="register-card">
+    <div class="emoji" id="emoji">🌱</div>
 
-    <p>ログインID</p>
-    <input type="text" name="loginId">
+    <h1>ユーザー登録</h1>
+    <p class="subtitle">新しい習慣を今日から始めよう！</p>
 
-    <p>パスワード</p>
-    <input type="password" name="password">
+    <form action="/register" method="post" id="registerForm">
 
-    <button type="submit">
-        登録
-    </button>
+        <input type="text" name="loginId" placeholder="ログインID">
 
-</form>
+        <input type="password" name="password" placeholder="パスワード">
+
+        <button type="submit">登録する</button>
+
+    </form>
+
+    <div class="message" id="message"></div>
+
+    <a href="/login">ログインはこちら</a>
+</div>
+
+<script>
+    const messages = [
+        "新しい一歩を始めよう！",
+        "習慣づくりは今日から！",
+        "未来の自分にプレゼント！",
+        "小さく始めれば大丈夫！"
+    ];
+
+    const emojis = ["🌱", "✨", "💪", "🌈", "🔥"];
+    let index = 0;
+
+    setInterval(() => {
+        document.getElementById("message").textContent = messages[index % messages.length];
+        document.getElementById("emoji").textContent = emojis[index % emojis.length];
+        index++;
+    }, 2000);
+
+    document.getElementById("registerForm").addEventListener("submit", function() {
+        document.querySelector("button").textContent = "登録中...";
+    });
+</script>
 
 </body>
 </html>
