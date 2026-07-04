@@ -106,11 +106,27 @@
 <div th:replace="~{fragments :: footer}"></div>
 
 <script>
-    function copyFriendCode() {
-        const code = document.getElementById("myFriendCode").innerText;
-        navigator.clipboard.writeText(code);
+function copyFriendCode() {
+    const code = document.getElementById("myFriendCode").innerText.trim();
+
+    const textarea = document.createElement("textarea");
+    textarea.value = code;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    try {
+        document.execCommand("copy");
         alert("友達コードをコピーしました！");
+    } catch (e) {
+        alert("コピーに失敗しました。手動でコピーしてください。");
     }
+
+    document.body.removeChild(textarea);
+}
 </script>
 </body>
 </html>
